@@ -22,7 +22,7 @@ func greyscale_image():
 	for x in range (200):
 		for y in range(200):
 			#Trying to change the black / white ratio in the image and give highlights
-			image.set_pixel(x, y, Color(1.0,1.0,1.0,1.0) * -image_noise.get_pixel(x,y) * -image_noise.get_pixel(x,y))
+			image.set_pixel(x, y, Color(1.0,1.0,1.0,1.0) * image_noise.get_pixel(x,y) * image_noise.get_pixel(x,y))
 	var texture = ImageTexture.create_from_image(image)
 	var sprite = Sprite2D.new()
 	sprite.position = Vector2(600,200)
