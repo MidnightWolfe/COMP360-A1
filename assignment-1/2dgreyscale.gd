@@ -1,4 +1,3 @@
-#Jannine was here! 
 extends Node2D
 
 func _ready() -> void:
@@ -6,9 +5,11 @@ func _ready() -> void:
 	greyscale_image()
 	pass
 
-
 @onready var origin : Node2D = $".."
 
+#### Creates a new "FastNoiseLite" object called cell_noise and defines the shape of the object
+#### Then, colors the object - in this case, black and white
+#### lastly, generates a new 2D sprite in the viewable window
 func greyscale_image():
 	var cell_noise = FastNoiseLite.new()
 	cell_noise.set_noise_type(FastNoiseLite.TYPE_CELLULAR)
@@ -18,17 +19,24 @@ func greyscale_image():
 	cell_noise.cellular_jitter = 1
 	cell_noise.cellular_distance_function = 2
 	cell_noise.cellular_return_type = 2
+	
+	## "get_seamless_image" - Returns an Image object containing seamless 2D noise values.
 	var image_noise = cell_noise.get_seamless_image(200,200)
+	
+	#### Colors the object - in this case, black and white
 	var image = Image.create(200, 200, false, Image.FORMAT_RGB8)
 	for x in range (200):
 		for y in range(200):
 			#Trying to change the black / white ratio in the image and give highlights
-			image.set_pixel(x, y, Color(1.0,1.0,1.0,1.0) * image_noise.get_pixel(x,y) * image_noise.get_pixel(x,y))
+			## Color(r,b,g,a) - r = red, b = blue, g= green, a = alpha
+			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0) * image_noise.get_pixel(x,y) * image_noise.get_pixel(x,y))
 	var texture = ImageTexture.create_from_image(image)
+	
+	#### Generates a new sprite in the viewable window
 	var sprite = Sprite2D.new()
 	sprite.position = Vector2(600,200)
 	sprite.texture = texture
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	origin.add_child(sprite)
 	
-	pass
+pass
