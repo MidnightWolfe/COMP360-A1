@@ -1,14 +1,14 @@
 #Hello, Ryan here, adding in my UVMAP Functions and doing some commenting on the code :D
+#Hi, Kaiya here, adjusted / cleaned up some of the code and added more comments (off of what Ryan did)
 
 extends Node3D
 
-var land: MeshInstance3D
+###Global variables
+var landscape = MeshInstance3D.new() #Mesh for the landscape used to place the FastNoiseLite image
 var st = SurfaceTool.new()
 
 func _ready() -> void:
-	var landscape = MeshInstance3D.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	
 	#This is the settings for the function
 	var quadCount : Array[int] = [0]
 	#Number of quads to do in the horizontal direction
@@ -26,7 +26,9 @@ func _ready() -> void:
 	
 	#var img = greyscale_image() #Trying to get the image generation from a different function
 	
-	#Just putting this here until we can figure out how to return the img in a function
+	## Creating the Cellular Image below
+	## Creates a new "FastNoiseLite" object called cell_noise and defines the shape of the object
+	## Then, colors the object - in this case, black and white
 	var cell_noise = FastNoiseLite.new()
 	cell_noise.set_noise_type(FastNoiseLite.TYPE_CELLULAR)
 	cell_noise.noise_type = 4
@@ -36,7 +38,7 @@ func _ready() -> void:
 	cell_noise.cellular_distance_function = 2
 	cell_noise.cellular_return_type = 2
 	var image_noise = cell_noise.get_seamless_image(200,200)
-	var image = Image.create(200, 200, false, Image.FORMAT_RGB8)
+	var image = Image.create(200, 200, false, Image.FORMAT_RGBA8) #Changed from RGB8 to RGBA8
 	for x in range (200):
 		for y in range(200):
 			#Trying to change the black / white ratio in the image and give highlights
@@ -50,10 +52,6 @@ func _ready() -> void:
 	add_child(landscape)
 	
 	pass
-
-#### Creates a new "FastNoiseLite" object called cell_noise and defines the shape of the object
-#### Then, colors the object - in this case, black and white
-#### lastly, generates a new 2D sprite in the viewable window
 
 
 #Ignore this function for now, if we get the rest working, then I'll try to return the image
@@ -80,19 +78,13 @@ func greyscale_image():
 			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0) * image_noise.get_pixel(x,y) * image_noise.get_pixel(x,y))
 	
 	
-	var texture = ImageTexture.create_from_image(image)
+	var texture = ImageTexture.create_from_image(image) #Trying to return the image
 	return texture
-	#### Generates a new sprite in the viewable window
-	#var sprite = Sprite2D.new()
-	#sprite.position = Vector2(600,200)
-	#sprite.texture = texture
-	#sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	#origin.add_child(sprite)
 	
 pass
 
-#More quad generation functions
 
+#More quad generation functions
 ### Takes in a location (Point), count (For allowing multiple quads), numHorz/Vert (Number of quads in that direction)
 ### qsHorz/Vert (The current index of the quad.
 ### All these together allow us to compute which part of the uv to map it to
