@@ -6,23 +6,19 @@ extends Node3D
 ###Global variables
 var landscape = MeshInstance3D.new() #Mesh for the landscape used to place the FastNoiseLite image
 var st = SurfaceTool.new()
+var image : Image
+var quadsHorizontal : int
+var quadsVertical : int
 
 func _ready() -> void:
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	#This is the settings for the function
 	var quadCount : Array[int] = [0]
 	#Number of quads to do in the horizontal direction
-	var quadsHorizontal : int = 2
+	quadsHorizontal = 20
 	#Num of vertical quads
-	var quadsVertical: int = 2
+	quadsVertical = 20
 	#Make a quad for each spot
-	for i in quadsHorizontal:
-		for j in quadsVertical:
-			_quad(Vector3(i,0,j), quadCount, quadsHorizontal, quadsVertical, i, j)
-	
-	st.generate_normals()
-	var mesh = st.commit()
-	landscape.mesh = mesh
 	
 	#var img = greyscale_image() #Trying to get the image generation from a different function
 	
@@ -38,13 +34,24 @@ func _ready() -> void:
 	cell_noise.cellular_distance_function = 2
 	cell_noise.cellular_return_type = 2
 	var image_noise = cell_noise.get_seamless_image(200,200)
-	var image = Image.create(200, 200, false, Image.FORMAT_RGBA8) #Changed from RGB8 to RGBA8
+	image = Image.create(200, 200, false, Image.FORMAT_RGBA8) #Changed from RGB8 to RGBA8
+
 	for x in range (200):
 		for y in range(200):
 			#Trying to change the black / white ratio in the image and give highlights
 			## Color(r,b,g,a) - r = red, b = blue, g= green, a = alpha
 			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0) * image_noise.get_pixel(x,y) * image_noise.get_pixel(x,y))
+		
+	for i in quadsHorizontal:
+		for j in quadsVertical:
+			_quad(Vector3(i,0,j), quadCount, quadsHorizontal, quadsVertical, i, j)
 	
+	st.generate_normals()
+	var mesh = st.commit()
+	landscape.mesh = mesh
+
+	
+
 	
 	var mat = StandardMaterial3D.new()
 	mat.albedo_texture = ImageTexture.create_from_image(image)
@@ -118,18 +125,26 @@ func _quad(
 	#Here we are setting the values of the quads corners to match the generated values from the _generateUVSlice
 	#What is cool about this is it splits the uv map into sections the size of a quad
 	#Imagine having a stencil of a square and putting it over an image, by moving the stencil you can show different things
+	
+	#Added height to the y axis by using the _getheight function. Had to add 1 to the 2-4th passes to get the corners of quadrent as point only stores 0,0
+	#print(point, " : ",  _getheight(point.x,point.y),  " : ",  image.get_pixel(point.x,point.y)," : x,y", point.x,point.y)
+	
 	st.set_uv(Vector2(lowerHorz,lowerVert))
-	st.add_vertex(point + Vector3(0,0,0))
+	st.add_vertex(point + Vector3(0,_getheight(point.x,point.z),0))
 	count[0] += 1
+	
 	st.set_uv(Vector2(upperHorz,lowerVert))
-	st.add_vertex(point + Vector3(1,0,0))
+	st.add_vertex(point + Vector3(1,_getheight(point.x+1,point.z),0))
 	count[0] += 1
+	
 	st.set_uv(Vector2(upperHorz,upperVert))
-	st.add_vertex(point + Vector3(1,0,1))
+	st.add_vertex(point + Vector3(1,_getheight(point.x+1,point.z+1),1))
 	count[0] += 1
+	
 	st.set_uv(Vector2(lowerHorz,upperVert))
-	st.add_vertex(point + Vector3(0,0,1))
+	st.add_vertex(point + Vector3(0,_getheight(point.x,point.z+1),1))
 	count[0] += 1
+	
 	
 	#Assemble the quad from the vertexs
 	st.add_index(count[0] - 4)
@@ -169,3 +184,8 @@ func _getPercent(numerator : float, denominator : float) -> float:
 		return 0.0
 	var percent : float = (numerator/denominator)
 	return percent
+#Returns the height of a pixel, from an image, based on its red channel.
+#takes the size of the image and divides it by the number of quadrents being generated to get the correct pixel
+#multiplies it by the quardrent, from the _quad func, to return the proper x,y height relitive to the quadrent
+func _getheight(x : float,y : float) -> float:
+	return image.get_pixel(x*(200/quadsHorizontal),y*(200/quadsVertical)).r
