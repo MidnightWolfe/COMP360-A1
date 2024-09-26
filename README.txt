@@ -3,3 +3,7 @@ Kaiya Wangler (MidnightWolfe): Created greyscale image used for imaging in lands
 Liam / Markus 		     : Created pixel color to height convertion function and implemented inside existing code. 
 			       moved some vars to global for access in function. Moved loop implementing _quad to be after the loop where image is 
                                created as it needed the image file to get the pixels for the height.
+
+
+Ryan:
+Quad function and UV-slice function, some scene changes to camera as well. 
