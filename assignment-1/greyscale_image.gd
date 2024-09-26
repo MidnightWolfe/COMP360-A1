@@ -20,8 +20,6 @@ func _ready() -> void:
 	quadsVertical = 20
 	#Make a quad for each spot
 	
-	#var img = greyscale_image() #Trying to get the image generation from a different function
-	
 	## Creating the Cellular Image below
 	## Creates a new "FastNoiseLite" object called cell_noise and defines the shape of the object
 	## Then, colors the object - in this case, black and white
@@ -59,36 +57,6 @@ func _ready() -> void:
 	add_child(landscape)
 	
 	pass
-
-
-#Ignore this function for now, if we get the rest working, then I'll try to return the image
-#through the function
-func greyscale_image():
-	var cell_noise = FastNoiseLite.new()
-	cell_noise.set_noise_type(FastNoiseLite.TYPE_CELLULAR)
-	cell_noise.noise_type = 4
-	cell_noise.fractal_octaves = 6
-	cell_noise.frequency = 0.04
-	cell_noise.cellular_jitter = 1
-	cell_noise.cellular_distance_function = 2
-	cell_noise.cellular_return_type = 2
-	
-	## "get_seamless_image" - Returns an Image object containing seamless 2D noise values.
-	var image_noise = cell_noise.get_seamless_image(200,200)
-	
-	#### Colors the object - in this case, black and white
-	var image = Image.create(200, 200, false, Image.FORMAT_RGB8)
-	for x in range (200):
-		for y in range(200):
-			#Trying to change the black / white ratio in the image and give highlights
-			## Color(r,b,g,a) - r = red, b = blue, g= green, a = alpha
-			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, 1.0) * image_noise.get_pixel(x,y) * image_noise.get_pixel(x,y))
-	
-	
-	var texture = ImageTexture.create_from_image(image) #Trying to return the image
-	return texture
-	
-pass
 
 
 #More quad generation functions
